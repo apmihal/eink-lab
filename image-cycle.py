@@ -2,11 +2,13 @@
 import sys
 import os
 import random
+import signal
 import time
 from PIL import Image, ImageDraw, ImageFont
 
 # Importing functions from another script
 from displayimage import display, pasteOnCanvas, validateAndConvert
+from clearscreen import clearScreen
 
 libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
@@ -64,6 +66,13 @@ def main():
 def getTime():
     # Returns current time in a string
     return time.strftime("%H:%M:%S", time.localtime())
+
+def SignalHandler_SIGINT(SignalNumber, Frame):
+    clearScreen()
+    print('Exiting')
+    sys.exit()
+
+signal.signal(signal.SIGINT,SignalHandler_SIGINT)
 
 if __name__ == '__main__':
     main()
