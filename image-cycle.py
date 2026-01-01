@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-
 import sys
 import os
 import random
 import time
 from PIL import Image, ImageDraw, ImageFont
+
+# Importing functions from another script
 from displayimage import display, pasteOnCanvas, validateAndConvert
 
 libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
@@ -17,48 +18,52 @@ from waveshare_epd import epd2in13_V4
 epd = epd2in13_V4.EPD()
 
 def main():
+    
+    counter = 0
 
+    # Create dictionary for filename: image object
+    images = {}
+
+    # Grabs list of files in ./images
     files = os.listdir('./images')
-    recents = []
 
+    # Runs once to pick out the valid images and put them in images dictionary
+    for file in files:
+
+        # Concatenates ./images path to filename, sends to validator
+        # allowSmall = false (must be exactly 250x122)
+        # kill = false (don't kill program over invalid file)
+        valid, image = validateAndConvert('./images/' + file, False, False)
+
+        if valid:
+            images[file] = image
+
+    print(images)
+
+    # Main loop. Displays images on screen and prints filenames with a timestamp.
+    # Has a counter that resets once it's looped through dictionary.
     while True:
-        choice = random.randrange(len(files) - 1)
+        currentTime = getTime()   
 
-        if files[choice] not in recents:
-            if len(recents) < 2:
-                recents.append(files[choice])
-            else:
-                recents.pop(0)
-                recents.append(files[choice])
+        # Dictionaries are now ordered in python.
+        # Using list() instantiates a list of keys indexed at counter
+        print('Displaying: ' + list(images)[counter] + ' at ' + currentTime)   
 
-            valid, image = validateAndConvert('./images/' + str(files[choice]), False, False)
+        # One step further by creating list of values indexed at counter
+        display(list(images.values())[counter])
 
-            if valid:
-                display(image)
-                time.sleep(180)
-                
+        #Spec sheet says waiting at least 3 minutes between refreshes is ideal
+        time.sleep(180)
 
-            else:
-                continue
-
+        # Counter increment/reset logic
+        if counter + 1 == len(images):
+            counter = 0
         else:
-            continue
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
+            counter += 1
+         
+def getTime():
+    # Returns current time in a string
+    return time.strftime("%H:%M:%S", time.localtime())
 
 if __name__ == '__main__':
     main()
-
