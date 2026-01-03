@@ -87,45 +87,55 @@ def validateAndConvert(filename, allowSmall, kill):
 # usage validateAndConvert(str, bool, bool)
 # allowSmall allows images that are less than screen rez to display
 # kill kills the program if a file is bad
-
     try:
         image = Image.open(filename)
+
     except:
         print("Can't open file")
         if kill:
             sys.exit()
+
         else:
             return False, None
 
     if image.format != 'BMP':
         print("Needs to be BMP")
+
         if kill:
             sys.exit()
+
         else:
             return False, None
-
+        
     elif image.height > 122 or image.width > 250:
         print("Image too big")
+
         if kill:
             sys.exit()
+
         else:
             return False, None
 
     elif image.mode != '1':
         try:
             image = image.convert('1')
+
         except:
             print("Can't convert to monochrome")
+
             if kill:
                 sys.exit()
+
             else:
                 return False, None
 
     elif image.height < 122 or image.width < 250:
         if allowSmall:
             image = pasteOnCanvas(image)
+
         else:
             print("Image too small")
+
             if kill:
                 sys.exit()
             else:
