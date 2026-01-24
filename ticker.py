@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import os
+import time
 import textwrap
+import feedparser
 from PIL import Image, ImageDraw, ImageFont
 
 from displayimage import display
@@ -15,8 +17,10 @@ from waveshare_epd import epd2in13_V4
 
 epd = epd2in13_V4.EPD()
 
+
+
 # Global starting font size
-font_size = 64
+font_size = 36
 
 too_tall = False
 
@@ -32,15 +36,22 @@ fontsize_to_maxperline = {1: 250, 2: 125, 3: 125, 4: 83, 5: 83, 6: 62, 7: 62, 8:
 
 
 def main():
-    image = Image.new('1', (epd.height, epd.width), 255)  # 255 = white background
-    draw = ImageDraw.Draw(image)
 
-    # The message to be displayed
-    long_text = "ICE FUCK OFF"
+    while True:
+        d = feedparser.parse('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml')
 
-    final_y = draw_multiline_text(draw, long_text, 0, 0, font_size, 0, 3)
+        for entry in d.entries:
+            image = Image.new('1', (epd.height, epd.width), 255)  # 255 = white background
+            draw = ImageDraw.Draw(image)
 
-    display(image)
+            long_text = entry.title
+
+            draw_multiline_text(draw, long_text, 0, 0, font_size, 0, 3)
+
+            display(image)
+            image.close()
+
+            time.sleep(181)
 
 # slaps text on image based on font size, reduces font size if it won't fit
 def draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3):
