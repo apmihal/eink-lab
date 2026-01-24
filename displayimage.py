@@ -8,7 +8,7 @@ import sys
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
+libdir = '../e-Paper/RaspberryPi_JetsonNano/python/lib'
 
 if os.path.exists(libdir):
     sys.path.append(libdir)
