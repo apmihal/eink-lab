@@ -4,9 +4,11 @@ import os
 import time
 import textwrap
 import feedparser
+import signal
 from PIL import Image, ImageDraw, ImageFont
 
 from displayimage import display
+from image_cycle import SignalHandler_SIGINT, getTime
 
 libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
@@ -17,13 +19,6 @@ from waveshare_epd import epd2in13_V4
 
 epd = epd2in13_V4.EPD()
 
-
-
-# Global starting font size
-font_size = 36
-
-too_tall = False
-
 # I figured out the ratio of fontsize to max characters per line with fontsize_to_pixelwidth.py
 # Is this a stupid way to do things??
 fontsize_to_maxperline = {1: 250, 2: 125, 3: 125, 4: 83, 5: 83, 6: 62, 7: 62, 8: 50, 9: 
@@ -33,25 +28,26 @@ fontsize_to_maxperline = {1: 250, 2: 125, 3: 125, 4: 83, 5: 83, 6: 62, 7: 62, 8:
 10, 43: 9, 44: 9, 45: 9, 46: 8, 47: 8, 48: 8, 49: 8, 50: 8, 51: 8, 52: 8, 53: 7, 54: 7, 
 55: 7, 56: 7, 57: 7, 58: 7, 59: 7, 60: 6, 61: 6, 62: 6, 63: 6, 64: 6}
 
-
-
 def main():
 
     while True:
         d = feedparser.parse('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml')
 
         for entry in d.entries:
+            long_text = entry.title
+
+            font_size = 36
+
             image = Image.new('1', (epd.height, epd.width), 255)  # 255 = white background
             draw = ImageDraw.Draw(image)
 
-            long_text = entry.title
-
-            draw_multiline_text(draw, long_text, 0, 0, font_size, 0, 3)
+            size_choice = draw_multiline_text(draw, long_text, 0, 0, font_size, 0, 3)
+            print(getTime() + ' ' + str(size_choice) + 'pt: ' + entry.title)
 
             display(image)
             image.close()
 
-            time.sleep(181)
+            time.sleep(180)
 
 # slaps text on image based on font size, reduces font size if it won't fit
 def draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3):
@@ -80,11 +76,14 @@ def draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3):
     # How could it be stupid? It uses recursion.
     if current_y > 122:
         font_size -= 1
-        print(str(font_size))
+        # print(str(font_size))
         draw.rectangle([(0, 0), (250,122)], fill=255)
         draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3)
 
-    return current_y
+    # return current_y
+    return font_size
+
+signal.signal(signal.SIGINT,SignalHandler_SIGINT)
 
 if __name__ == '__main__':
     main()
