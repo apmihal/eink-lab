@@ -63,7 +63,7 @@ def draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3):
     # bottom and top of text box, and uses that to set the position for the next line
     current_y = y
     for line in lines:
-        draw.text((x, current_y), line, font=font, fill=fill)
+        draw.text((x, current_y - 6), line, font=font, fill=fill)
         bbox = draw.textbbox((0, 0), line, font=font)
         line_height = bbox[3] - bbox[1]
         current_y += line_height + line_spacing
