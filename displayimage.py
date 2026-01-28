@@ -83,6 +83,17 @@ def display(image):
     epd.sleep()
     print('sleeping')
 
+def fast_display(image):
+    epd.init_fast()
+    # epd.Clear(0xFF)
+
+    image = image.rotate(180)
+    epd.display_fast(epd.getbuffer(image))
+    epd.sleep()
+    print('sleeping')
+
+
+
 def validateAndConvert(filename, allowSmall, kill):
 # usage validateAndConvert(str, bool, bool)
 # allowSmall allows images that are less than screen rez to display

@@ -7,7 +7,7 @@ import feedparser
 import signal
 from PIL import Image, ImageDraw, ImageFont
 
-from displayimage import display
+from displayimage import display, fast_display
 from image_cycle import SignalHandler_SIGINT, getTime
 
 libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
@@ -30,8 +30,15 @@ fontsize_to_maxperline = {1: 250, 2: 125, 3: 125, 4: 83, 5: 83, 6: 62, 7: 62, 8:
 
 def main():
 
+    epd.init()
+    epd.Clear(0xFF)
+    epd.sleep
+
+    fast_refresh_count = 0
+
     while True:
-        d = feedparser.parse('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml')
+        # d = feedparser.parse('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml')
+        d = feedparser.parse('https://feeds.npr.org/1003/rss.xml')
 
         for entry in d.entries:
             long_text = entry.title
@@ -42,12 +49,19 @@ def main():
             draw = ImageDraw.Draw(image)
 
             size_choice = draw_multiline_text(draw, long_text, 0, 0, font_size, 0, 3)
-            print(getTime() + ' ' + str(size_choice) + 'pt: ' + entry.title)
+            print(getTime() + ' ' + str(size_choice) + 'pt FRC: ' + str(fast_refresh_count+1) + ': ' + entry.title)
 
-            display(image)
+            if fast_refresh_count < 5:
+                fast_display(image)
+                fast_refresh_count += 1
+
+            else:
+                display(image)
+                fast_refresh_count = 0
+
             image.close()
 
-            time.sleep(180)
+            time.sleep(30)
 
 # slaps text on image based on font size, reduces font size if it won't fit
 def draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3):
