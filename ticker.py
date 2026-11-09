@@ -37,8 +37,11 @@ def main():
     fast_refresh_count = 0
 
     while True:
-        # d = feedparser.parse('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml')
-        d = feedparser.parse('https://feeds.npr.org/1003/rss.xml')
+        d = feedparser.parse('https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml')
+        # d = feedparser.parse('https://feeds.npr.org/1003/rss.xml')
+        # d = feedparser.parse('https://feeds.bbci.co.uk/news/rss.xml')
+        # d = feedparser.parse('https://www.aljazeera.com/xml/rss/all.xml')
+        # d = feedparser.parse('https://www.dropsitenews.com/feed.xml')
 
         for entry in d.entries:
             long_text = entry.title
@@ -61,7 +64,7 @@ def main():
 
             image.close()
 
-            time.sleep(30)
+            time.sleep(60)
 
 # slaps text on image based on font size, reduces font size if it won't fit
 def draw_multiline_text(draw, text, x, y, font_size, fill=0, line_spacing=3):
