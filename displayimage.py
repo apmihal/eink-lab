@@ -8,7 +8,7 @@ import sys
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
+libdir = '../e-Paper/RaspberryPi_JetsonNano/python/lib'
 
 if os.path.exists(libdir):
     sys.path.append(libdir)
@@ -82,6 +82,17 @@ def display(image):
     epd.display(epd.getbuffer(image))
     epd.sleep()
     print('sleeping')
+
+def fast_display(image):
+    epd.init_fast()
+    # epd.Clear(0xFF)
+
+    image = image.rotate(180)
+    epd.display_fast(epd.getbuffer(image))
+    epd.sleep()
+    print('sleeping')
+
+
 
 def validateAndConvert(filename, allowSmall, kill):
 # usage validateAndConvert(str, bool, bool)

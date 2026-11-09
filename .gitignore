@@ -3,3 +3,7 @@ images
 .vscode
 scratchpad.py
 testdir
+lib
+rss_test
+rss_test.py
+ticker.log
