@@ -7,14 +7,17 @@ import asyncio
 import tkinter as tk
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
-libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
+# libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
-if os.path.exists(libdir):
-    sys.path.append(libdir)
+# if os.path.exists(libdir):
+#     sys.path.append(libdir)
 
-from waveshare_epd import epd2in13_V4
+# from waveshare_epd import epd2in13_V4
 
-epd = epd2in13_V4.EPD()
+# epd = epd2in13_V4.EPD()
+
+epd_height = 250
+epd_width = 122
 
 async def get_weather():
     
@@ -35,33 +38,38 @@ async def get_weather():
 
 def main():
 
-    epd = epd2in13_V4.EPD()
-    epd.init()
-    epd.Clear(0xFF)
+    # epd = epd2in13_V4.EPD()
+    # epd.init()
+    # epd.Clear(0xFF)
 
-    image = Image.new('1', (epd.height, epd.width), 255)
+    image = Image.new('1', (epd_height, epd_width), 255)
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 122)
+    temp_font = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 90)
+    text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
 
     weather = asyncio.run(get_weather())
 
-    draw.text((250, 0), str(weather.temperature) + "°", font=font, fill=0, anchor="rt")
+    draw.text((235, 28), str(weather.temperature) + "°", font=temp_font, fill=0, anchor="rt")
 
-    image = image.rotate(180)
+    # mock up text
+    draw.text((0, 0), "3:00 Sunny\n6:00 Rain", font=text_font, fill=0)
 
-    epd.display(epd.getbuffer(image))
-    epd.sleep()
+    #image = image.rotate(180)
+    image.show()
 
-def SignalHandler_SIGINT(SignalNumber, Frame):
-    epd.init()
-    epd.Clear(0xFF)
-    print("Screen cleared. Sleeping.")
-    epd.sleep()
-    print('Exiting')
-    sys.exit()
+    # epd.display(epd.getbuffer(image))
+    # epd.sleep()
 
-# regsiter signal with handler
-signal.signal(signal.SIGINT,SignalHandler_SIGINT)
+# def SignalHandler_SIGINT(SignalNumber, Frame):
+#     epd.init()
+#     epd.Clear(0xFF)
+#     print("Screen cleared. Sleeping.")
+#     epd.sleep()
+#     print('Exiting')
+#     sys.exit()
+
+# # regsiter signal with handler
+# signal.signal(signal.SIGINT,SignalHandler_SIGINT)
 
 
 if __name__ == '__main__':
