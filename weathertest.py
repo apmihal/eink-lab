@@ -61,9 +61,22 @@ def main():
     # draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
     draw.text((245, 5), weather["weather"][0]["maxtempF"], font=temp_mid, fill=0, anchor="rt")
     draw.text((245, 117), weather["weather"][0]["mintempF"], font=temp_mid, fill=0, anchor="rb")
-    draw.text((95, 15), weather["current_condition"][0]["temp_F"], font=temp_big, fill=0, anchor="mt")
+    #draw.text((95, 15), weather["current_condition"][0]["temp_F"], font=temp_big, fill=0, anchor="mt")
     draw.text((245, 61), "HI|LO", font=text_font, fill=0, anchor="rm")
-    draw.text((95, 107), "NOW", font=text_font, fill=0, anchor="mb")
+    #draw.text((95, 107), "NOW", font=text_font, fill=0, anchor="mb")
+    draw.text((0, 0), "RAIN", font=text_font, fill=0, anchor="lt")
+
+    biggest_chance = 0
+
+    for hour in range(0, len(weather["weather"][0]["hourly"])):
+        chance = weather["weather"][0]["hourly"][hour]["chanceofrain"]
+        # print(chance)
+        
+        if int(chance) > biggest_chance:
+            biggest_chance = int(chance)
+
+    draw.text((0, 25), str(biggest_chance) + "%", font=text_font, fill=0)
+
 
     image = image.rotate(180)
     # image.show()
