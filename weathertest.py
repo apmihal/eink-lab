@@ -9,8 +9,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 dev = False
 
-if sys.argv[1] == "dev":
-    dev = True
+if len(sys.argv) > 1:
+    if sys.argv[1] == "dev":
+        dev = True
 
 if not dev:
     libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
