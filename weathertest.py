@@ -9,40 +9,30 @@ import requests
 import json
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
-libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
+dev = False
 
-if os.path.exists(libdir):
-    sys.path.append(libdir)
+if sys.argv[1] == "dev":
+    dev = True
 
-from waveshare_epd import epd2in13_V4
+if dev:
+    libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
-epd = epd2in13_V4.EPD()
+    if os.path.exists(libdir):
+        sys.path.append(libdir)
+
+    from waveshare_epd import epd2in13_V4
+
+    epd = epd2in13_V4.EPD()
 
 epd_height = 250
 epd_width = 122
 
-# async def get_weather():
-    
-#     async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
-
-#         weather = await client.get('stl')
-        
-#         print(weather)
-#         # Fetch weather forecast for upcoming days.
-#         for daily in weather:
-#             print(daily)
-
-#             # Each daily forecast has their own hourly forecasts.
-#             for hourly in daily:
-#                 print(f' --> {hourly!s}')
-
-#         return weather
-
 def main():
 
-    epd = epd2in13_V4.EPD()
-    epd.init()
-    epd.Clear(0xFF)
+    if dev:
+        epd = epd2in13_V4.EPD()
+        epd.init()
+        epd.Clear(0xFF)
 
     response = requests.get(
         'https://wttr.in/stl', 
@@ -55,8 +45,6 @@ def main():
     temp_mid = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 55)
     temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 100)
     text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
-
-    # weather = asyncio.run(get_weather())
 
     # draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
     draw.text((245, 5), weather["weather"][0]["maxtempF"], font=temp_mid, fill=0, anchor="rt")
@@ -77,12 +65,12 @@ def main():
 
     draw.text((0, 25), str(biggest_chance) + "%", font=text_font, fill=0)
 
-
-    image = image.rotate(180)
-    # image.show()
-
-    epd.display(epd.getbuffer(image))
-    epd.sleep()
+    if dev:
+        image.show()
+    else:
+        image = image.rotate(180)
+        epd.display(epd.getbuffer(image))
+        epd.sleep()       
 
 # def SignalHandler_SIGINT(SignalNumber, Frame):
 #     epd.init()
@@ -94,7 +82,6 @@ def main():
 
 # # regsiter signal with handler
 # signal.signal(signal.SIGINT,SignalHandler_SIGINT)
-
 
 if __name__ == '__main__':
     main()
