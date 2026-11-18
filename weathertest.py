@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 import sys
 import os
-# import python_weather
 import signal
-# import asyncio
 import tkinter as tk
 import requests
 import json
@@ -14,7 +12,7 @@ dev = False
 if sys.argv[1] == "dev":
     dev = True
 
-if dev:
+if not dev:
     libdir = '/home/andrewm/eink/e-Paper/RaspberryPi_JetsonNano/python/lib'
 
     if os.path.exists(libdir):
@@ -29,7 +27,7 @@ epd_width = 122
 
 def main():
 
-    if dev:
+    if not dev:
         epd = epd2in13_V4.EPD()
         epd.init()
         epd.Clear(0xFF)
@@ -43,16 +41,17 @@ def main():
     image = Image.new('1', (epd_height, epd_width), 255)
     draw = ImageDraw.Draw(image)
     temp_mid = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 55)
-    temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 100)
+    temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 90)
     text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
 
-    # draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
-    draw.text((245, 5), weather["weather"][0]["maxtempF"], font=temp_mid, fill=0, anchor="rt")
-    draw.text((245, 117), weather["weather"][0]["mintempF"], font=temp_mid, fill=0, anchor="rb")
-    #draw.text((95, 15), weather["current_condition"][0]["temp_F"], font=temp_big, fill=0, anchor="mt")
-    draw.text((245, 61), "HI|LO", font=text_font, fill=0, anchor="rm")
-    #draw.text((95, 107), "NOW", font=text_font, fill=0, anchor="mb")
-    draw.text((0, 0), "RAIN", font=text_font, fill=0, anchor="lt")
+    #draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
+    draw.text((245, 5), weather["weather"][0]["maxtempF"] + "°", font=temp_mid, fill=0, anchor="rt")
+    draw.text((245, 117), weather["weather"][0]["mintempF"] + "°", font=temp_mid, fill=0, anchor="rb")
+    draw.text((75, 5), weather["current_condition"][0]["temp_F"] + "°", font=temp_big, fill=0, anchor="mt")
+    draw.text((235, 61), "HI|LO", font=text_font, fill=0, anchor="rm")
+    draw.text((107, 68), "NOW", font=text_font, fill=0, anchor="lb")
+    draw.text((5, 74), "RA\nIN", font=text_font, fill=0)
+  
 
     biggest_chance = 0
 
@@ -63,7 +62,9 @@ def main():
         if int(chance) > biggest_chance:
             biggest_chance = int(chance)
 
-    draw.text((0, 25), str(biggest_chance) + "%", font=text_font, fill=0)
+    draw.text((35, 95), str(biggest_chance) + "%", font=text_font, fill=0, anchor="lm")
+
+    draw.text((87, 95), weather["current_condition"][0]["weatherDesc"][0]["value"], font=text_font, fill=0, anchor="lm")
 
     if dev:
         image.show()
