@@ -5,6 +5,7 @@ import signal
 import tkinter as tk
 import requests
 import json
+from time import sleep
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 dev = False
@@ -28,62 +29,66 @@ epd_width = 122
 
 def main():
 
-    if not dev:
-        epd = epd2in13_V4.EPD()
-        epd.init()
-        epd.Clear(0xFF)
+    update = True
 
-    response = requests.get(
-        'https://wttr.in/stl', 
-        params={"format": "j1"})
+    while update:
+        if not dev:
+            epd.init()
+            epd.Clear(0xFF)
 
-    weather = response.json()
+        response = requests.get(
+            'https://wttr.in/stl', 
+            params={"format": "j1"})
 
-    image = Image.new('1', (epd_height, epd_width), 255)
-    draw = ImageDraw.Draw(image)
-    temp_mid = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 55)
-    temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 90)
-    text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
+        weather = response.json()
 
-    #draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
-    draw.text((245, 5), weather["weather"][0]["maxtempF"] + "°", font=temp_mid, fill=0, anchor="rt")
-    draw.text((245, 117), weather["weather"][0]["mintempF"] + "°", font=temp_mid, fill=0, anchor="rb")
-    draw.text((75, 5), weather["current_condition"][0]["temp_F"] + "°", font=temp_big, fill=0, anchor="mt")
-    draw.text((235, 61), "HI|LO", font=text_font, fill=0, anchor="rm")
-    draw.text((107, 68), "NOW", font=text_font, fill=0, anchor="lb")
-    draw.text((5, 74), "RA\nIN", font=text_font, fill=0)
-  
+        image = Image.new('1', (epd_height, epd_width), 255)
+        draw = ImageDraw.Draw(image)
+        temp_mid = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 55)
+        temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 90)
+        text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
 
-    biggest_chance = 0
+        #draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
+        draw.text((245, 5), weather["weather"][0]["maxtempF"] + "°", font=temp_mid, fill=0, anchor="rt")
+        draw.text((245, 117), weather["weather"][0]["mintempF"] + "°", font=temp_mid, fill=0, anchor="rb")
+        draw.text((75, 5), weather["current_condition"][0]["temp_F"] + "°", font=temp_big, fill=0, anchor="mt")
+        draw.text((235, 61), "HI|LO", font=text_font, fill=0, anchor="rm")
+        draw.text((107, 68), "NOW", font=text_font, fill=0, anchor="lb")
+        draw.text((5, 74), "RA\nIN", font=text_font, fill=0)
+    
 
-    for hour in range(0, len(weather["weather"][0]["hourly"])):
-        chance = weather["weather"][0]["hourly"][hour]["chanceofrain"]
-        # print(chance)
-        
-        if int(chance) > biggest_chance:
-            biggest_chance = int(chance)
+        biggest_chance = 0
 
-    draw.text((35, 95), str(biggest_chance) + "%", font=text_font, fill=0, anchor="lm")
+        for hour in range(0, len(weather["weather"][0]["hourly"])):
+            chance = weather["weather"][0]["hourly"][hour]["chanceofrain"]
+            # print(chance)
+            
+            if int(chance) > biggest_chance:
+                biggest_chance = int(chance)
 
-    draw.text((87, 95), weather["current_condition"][0]["weatherDesc"][0]["value"], font=text_font, fill=0, anchor="lm")
+        draw.text((35, 95), str(biggest_chance) + "%", font=text_font, fill=0, anchor="lm")
 
-    if dev:
-        image.show()
-    else:
-        image = image.rotate(180)
-        epd.display(epd.getbuffer(image))
-        epd.sleep()       
+        draw.text((87, 95), weather["current_condition"][0]["weatherDesc"][0]["value"], font=text_font, fill=0, anchor="lm")
 
-# def SignalHandler_SIGINT(SignalNumber, Frame):
-#     epd.init()
-#     epd.Clear(0xFF)
-#     print("Screen cleared. Sleeping.")
-#     epd.sleep()
-#     print('Exiting')
-#     sys.exit()
+        if dev:
+            image.show()
+            update = False
+        else:
+            image = image.rotate(180)
+            epd.display(epd.getbuffer(image))
+            epd.sleep()
+            sleep(30)    
 
-# # regsiter signal with handler
-# signal.signal(signal.SIGINT,SignalHandler_SIGINT)
+def SignalHandler_SIGINT(SignalNumber, Frame):
+    epd.init()
+    epd.Clear(0xFF)
+    print("Screen cleared. Sleeping.")
+    epd.sleep()
+    print('Exiting')
+    sys.exit()
+
+# regsiter signal with handler
+signal.signal(signal.SIGINT,SignalHandler_SIGINT)
 
 if __name__ == '__main__':
     main()
