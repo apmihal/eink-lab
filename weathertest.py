@@ -77,7 +77,7 @@ def main():
             image = image.rotate(180)
             epd.display(epd.getbuffer(image))
             epd.sleep()
-            sleep(30)    
+            sleep(1830)    
 
 def SignalHandler_SIGINT(SignalNumber, Frame):
     epd.init()
