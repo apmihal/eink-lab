@@ -8,6 +8,7 @@ import json
 from time import sleep
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
+# passing 'dev' as arg at runtime renders as png instead of on screen
 dev = False
 
 if len(sys.argv) > 1:
@@ -27,8 +28,13 @@ if not dev:
 epd_height = 250
 epd_width = 122
 
+temp_mid = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 55)
+temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 90)
+text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
+
 def main():
 
+    # not sure why it wouldn't let update be a global variable, but dev is fine
     update = True
 
     while update:
@@ -44,31 +50,78 @@ def main():
 
         image = Image.new('1', (epd_height, epd_width), 255)
         draw = ImageDraw.Draw(image)
-        temp_mid = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 55)
-        temp_big = ImageFont.truetype('/usr/share/fonts/truetype/agenia/Agenia-Bold.ttf', 90)
-        text_font = ImageFont.truetype('/usr/share/fonts/truetype/hack/Hack-Regular.ttf', 20)
 
-        #draw.text((248, 28), str(weather["current_condition"][0]["temp_F"]) + "°", font=temp_font, fill=0, anchor="rt")
-        draw.text((245, 5), weather["weather"][0]["maxtempF"] + "°", font=temp_mid, fill=0, anchor="rt")
-        draw.text((245, 117), weather["weather"][0]["mintempF"] + "°", font=temp_mid, fill=0, anchor="rb")
-        draw.text((75, 5), weather["current_condition"][0]["temp_F"] + "°", font=temp_big, fill=0, anchor="mt")
-        draw.text((235, 61), "HI|LO", font=text_font, fill=0, anchor="rm")
-        draw.text((107, 68), "NOW", font=text_font, fill=0, anchor="lb")
-        draw.text((5, 74), "RA\nIN", font=text_font, fill=0)
+        # current temp
+        draw.text(
+            (75, 5), 
+            weather["current_condition"][0]["temp_F"] + "°", 
+            font=temp_big, 
+            fill=0, 
+            anchor="mt")
+
+        # max temp
+        draw.text(
+            (245, 5), 
+            weather["weather"][0]["maxtempF"] + "°", 
+            font=temp_mid, 
+            fill=0, 
+            anchor="rt")
+
+        # min temp
+        draw.text(
+            (245, 117), 
+            weather["weather"][0]["mintempF"] + "°", 
+            font=temp_mid, 
+            fill=0, 
+            anchor="rb")
+
+        # "HI | LO"
+        draw.text(
+            (235, 61), 
+            "HI|LO", 
+            font=text_font, 
+            fill=0, 
+            anchor="rm")
+
+        # "NOW"
+        draw.text(
+            (107, 68), 
+            "NOW", 
+            font=text_font, 
+            fill=0, 
+            anchor="lb")
+
+        # weather description
+        draw.text(
+            (87, 95), 
+            weather["current_condition"][0]["weatherDesc"][0]["value"], 
+            font=text_font, 
+            fill=0, 
+            anchor="lm")
     
-
+        # finds the highest percent chance of rain for the day
         biggest_chance = 0
 
         for hour in range(0, len(weather["weather"][0]["hourly"])):
             chance = weather["weather"][0]["hourly"][hour]["chanceofrain"]
-            # print(chance)
             
             if int(chance) > biggest_chance:
                 biggest_chance = int(chance)
 
-        draw.text((35, 95), str(biggest_chance) + "%", font=text_font, fill=0, anchor="lm")
+        # "RA\nIN"
+        draw.text(
+            (5, 74), 
+            "RA\nIN", 
+            font=text_font, 
+            fill=0)
 
-        draw.text((87, 95), weather["current_condition"][0]["weatherDesc"][0]["value"], font=text_font, fill=0, anchor="lm")
+        # rain chance percent
+        draw.text(
+            (35, 95), 
+            str(biggest_chance) + "%", 
+            font=text_font, 
+            fill=0, 
+            anchor="lm")
 
         if dev:
             image.show()
