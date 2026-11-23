@@ -5,7 +5,7 @@ import signal
 import tkinter as tk
 import requests
 import json
-from time import sleep
+import time
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 # passing 'dev' as arg at runtime renders as png instead of on screen
@@ -44,7 +44,8 @@ def main():
 
         response = requests.get(
             'https://wttr.in/stl', 
-            params={"format": "j1"})
+            params={"format": "j1"}
+        )
 
         weather = response.json()
 
@@ -57,7 +58,8 @@ def main():
             weather["current_condition"][0]["temp_F"] + "°", 
             font=temp_big, 
             fill=0, 
-            anchor="mt")
+            anchor="mt"
+        )
 
         # max temp
         draw.text(
@@ -65,7 +67,8 @@ def main():
             weather["weather"][0]["maxtempF"] + "°", 
             font=temp_mid, 
             fill=0, 
-            anchor="rt")
+            anchor="rt"
+        )
 
         # min temp
         draw.text(
@@ -73,7 +76,8 @@ def main():
             weather["weather"][0]["mintempF"] + "°", 
             font=temp_mid, 
             fill=0, 
-            anchor="rb")
+            anchor="rb"
+        )
 
         # "HI | LO"
         draw.text(
@@ -81,7 +85,8 @@ def main():
             "HI|LO", 
             font=text_font, 
             fill=0, 
-            anchor="rm")
+            anchor="rm"
+        )
 
         # "NOW"
         draw.text(
@@ -89,15 +94,25 @@ def main():
             "NOW", 
             font=text_font, 
             fill=0, 
-            anchor="lb")
+            anchor="lb"
+        )
 
-        # weather description
+        # # weather description
+        # draw.text(
+        #     (87, 95), 
+        #     weather["current_condition"][0]["weatherDesc"][0]["value"], 
+        #     font=text_font, 
+        #     fill=0, 
+        #     anchor="lm")
+
+        # last update time
         draw.text(
-            (87, 95), 
-            weather["current_condition"][0]["weatherDesc"][0]["value"], 
-            font=text_font, 
-            fill=0, 
-            anchor="lm")
+            (80, 117),
+            time.strftime("%H:%M", time.localtime()),
+            font=text_font,
+            fill=0,
+            anchor="lb"
+        )
     
         # finds the highest percent chance of rain for the day
         biggest_chance = 0
@@ -108,20 +123,22 @@ def main():
             if int(chance) > biggest_chance:
                 biggest_chance = int(chance)
 
-        # "RA\nIN"
+        # "RAIN"
         draw.text(
             (5, 74), 
-            "RA\nIN", 
+            "RAIN", 
             font=text_font, 
-            fill=0)
+            fill=0
+        )
 
         # rain chance percent
         draw.text(
-            (35, 95), 
+            (30, 117), 
             str(biggest_chance) + "%", 
             font=text_font, 
             fill=0, 
-            anchor="lm")
+            anchor="mb"
+        )
 
         if dev:
             image.show()
