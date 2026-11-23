@@ -5,7 +5,7 @@ import signal
 import tkinter as tk
 import requests
 import json
-import time
+from time import sleep
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 # passing 'dev' as arg at runtime renders as png instead of on screen
