@@ -22,16 +22,14 @@ def main():
     epd.init_fast()
     time_image = Image.new('1', (epd.height, epd.width), 255)
     time_draw = ImageDraw.Draw(time_image)
-    time_draw.rectangle((5, 5, 45,45), fill = 0)
-    time_image = time_image.rotate(180)
-    epd.displayPartBaseImage(epd.getbuffer(time_image))
+    epd.displayPartBaseImage(to_buf(time_image))
     num = 0
 
     while (True):
         time_draw.rectangle((120, 80, 220, 105), fill = 255)
         time_draw.text((120, 80), time.strftime('%H:%M:%S'), font = text_font, fill = 0)
 
-        epd.displayPartial(epd.getbuffer(time_image))
+        epd.displayPartial(to_buf(time_image))
         num = num + 1
         sleep(1)
         if (num == 10):
@@ -43,6 +41,10 @@ def main():
     epd.Clear(0xFF)
 
     epd.sleep()
+
+# Instead of overwriting the image with a rotated one, this just sends a rotated  image to the display from the buffer
+def to_buf(img):
+    return epd.getbuffer(img.rotate(180))
 
 if __name__ == "__main__":
     main()
